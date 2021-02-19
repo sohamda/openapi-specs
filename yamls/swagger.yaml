@@ -1,9 +1,9 @@
 openapi: 3.0.0
 info:
-  title: Simple Inventory API
-  description: This is a simple API
+  title: Springboot tutrial APIs - Provider, Service, Citizen
+  description: APIs for Services, Providers and Citizens
   contact:
-    email: you@your-company.com
+    email: iam.soham@gmail.com
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
@@ -11,65 +11,40 @@ info:
 servers:
 - url: https://virtserver.swaggerhub.com/iamsoham/springboottutorials/1.0.0
   description: SwaggerHub API Auto Mocking
-tags:
-- name: admins
-  description: Secured Admin-only calls
-- name: developers
-  description: Operations available to regular developers
 paths:
-  /inventory:
+  /providers:
     get:
-      tags:
-      - developers
-      summary: searches inventory
-      description: |
-        By passing in the appropriate options, you can search for
-        available inventory in the system
-      operationId: searchInventory
-      parameters:
-      - name: searchString
-        in: query
-        description: pass an optional search string for looking up inventory
-        required: false
-        style: form
-        explode: true
-        schema:
-          type: string
-      - name: skip
-        in: query
-        description: number of records to skip for pagination
-        required: false
-        style: form
-        explode: true
-        schema:
-          minimum: 0
-          type: integer
-          format: int32
-      - name: limit
-        in: query
-        description: maximum number of records to return
-        required: false
-        style: form
-        explode: true
-        schema:
-          maximum: 50
-          minimum: 0
-          type: integer
-          format: int32
+      summary: lists all providers
+      description: list all providers
+      operationId: getAllProviders
       responses:
         "200":
-          description: search results matching criteria
+          description: all providers
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/InventoryItem'
+                  $ref: '#/components/schemas/Provider'
         "400":
           description: bad input parameter
+  /provider/{id}:
+    get:
+      summary: gets a specific provider by id
+      description: get by provider id
+      operationId: getProviderByID
+      parameters: []
+      responses:
+        "200":
+          description: Successfull response with stock info
+        "400":
+          description: Request is not correct.
+        "404":
+          description: There is endpoint found.
+        "500":
+          description: Internal Server Error.
+  /provider:
     post:
-      tags:
-      - admins
       summary: adds an inventory item
       description: Adds an item to the system
       operationId: addInventory
@@ -78,7 +53,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/InventoryItem'
+              $ref: '#/components/schemas/Provider'
       responses:
         "201":
           description: item created
@@ -88,27 +63,22 @@ paths:
           description: an existing item already exists
 components:
   schemas:
-    InventoryItem:
+    Provider:
       required:
+      - description
       - id
-      - manufacturer
       - name
-      - releaseDate
       type: object
       properties:
         id:
-          type: string
-          format: uuid
-          example: d290f1ee-6c54-4b01-90e6-d701748f0851
+          type: integer
+          example: 20
         name:
           type: string
-          example: Widget Adapter
-        releaseDate:
+          example: Loco Poco
+        description:
           type: string
-          format: date-time
-          example: 2016-08-29T09:12:33.001Z
-        manufacturer:
-          $ref: '#/components/schemas/Manufacturer'
+          example: Everything for your house
     Manufacturer:
       required:
       - name
@@ -124,3 +94,12 @@ components:
         phone:
           type: string
           example: 408-867-5309
+  responses:
+    "201ItemCreated":
+      description: Item got created successfully.
+    "400BadRequest":
+      description: Request is not correct.
+    "404NotFound":
+      description: There is endpoint found.
+    "500InternalServerError":
+      description: Internal Server Error.
