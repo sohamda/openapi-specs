@@ -12,6 +12,26 @@ servers:
 - url: https://virtserver.swaggerhub.com/iamsoham/springboottutorials/1.0.0
   description: SwaggerHub API Auto Mocking
 paths:
+  /services:
+    get:
+      summary: lists all services
+      description: list all services
+      operationId: getAllServices
+      responses:
+        "200":
+          description: all services
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Service'
+        "400":
+          description: Request is not correct.
+        "404":
+          description: There is no endpoint found.
+        "500":
+          description: Internal Server Error.
   /providers:
     get:
       summary: lists all providers
@@ -27,79 +47,250 @@ paths:
                 items:
                   $ref: '#/components/schemas/Provider'
         "400":
-          description: bad input parameter
+          description: Request is not correct.
+        "404":
+          description: There is no endpoint found.
+        "500":
+          description: Internal Server Error.
+  /service/{id}:
+    get:
+      summary: gets a specific service by id
+      description: get by service id
+      operationId: getServiceByID
+      parameters:
+      - name: id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Successfull response with Service info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+        "400":
+          description: Request is not correct.
+        "404":
+          description: There is no endpoint found.
+        "500":
+          description: Internal Server Error.
   /provider/{id}:
     get:
       summary: gets a specific provider by id
       description: get by provider id
       operationId: getProviderByID
-      parameters: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
       responses:
         "200":
-          description: Successfull response with stock info
+          description: Successfull response with Provider info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Provider'
         "400":
           description: Request is not correct.
         "404":
-          description: There is endpoint found.
+          description: There is no endpoint found.
+        "500":
+          description: Internal Server Error.
+  /serviceprovider/{id}:
+    get:
+      summary: gets a specific service by id with Provider
+      description: get by service id along with Provider
+      operationId: getServiceProviderByID
+      parameters:
+      - name: id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Successfull response with Service and Provider info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceWithProvider'
+        "400":
+          description: Request is not correct.
+        "404":
+          description: There is no endpoint found.
+        "500":
+          description: Internal Server Error.
+  /providerservice/{id}:
+    get:
+      summary: gets a specific provider by id with Services
+      description: get by provider id along with all services
+      operationId: getProviderServicesByID
+      parameters:
+      - name: id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Successfull response with Provider and Services info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderWithServices'
+        "400":
+          description: Request is not correct.
+        "404":
+          description: There is no endpoint found.
         "500":
           description: Internal Server Error.
   /provider:
     post:
-      summary: adds an inventory item
-      description: Adds an item to the system
-      operationId: addInventory
+      summary: adds a Provider
+      description: Adds a Provider to the system
+      operationId: addProvider
       requestBody:
-        description: Inventory item to add
+        description: Provider item to add
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Provider'
+              $ref: '#/components/schemas/ProviderNoId'
       responses:
-        "201":
-          description: item created
+        "200":
+          description: Successfull response with Provider info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Provider'
         "400":
-          description: invalid input, object invalid
+          description: Request is not correct.
+        "404":
+          description: There is no endpoint found.
         "409":
-          description: an existing item already exists
+          description: '#/components/responses/409ItemExists'
+        "500":
+          description: Internal Server Error.
+  /service:
+    post:
+      summary: adds an service
+      description: Adds a service to the system
+      operationId: addService
+      requestBody:
+        description: Service to add
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceNoId'
+      responses:
+        "200":
+          description: Successfull response with Service info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+        "400":
+          description: Request is not correct.
+        "404":
+          description: There is no endpoint found.
+        "409":
+          description: '#/components/responses/409ItemExists'
+        "500":
+          description: Internal Server Error.
 components:
   schemas:
-    Provider:
+    ProviderNoId:
       required:
       - description
-      - id
       - name
       type: object
       properties:
-        id:
-          type: integer
-          example: 20
         name:
           type: string
           example: Loco Poco
         description:
           type: string
           example: Everything for your house
-    Manufacturer:
+    Provider:
+      allOf:
+      - $ref: '#/components/schemas/ProviderNoId'
+      - required:
+        - id
+        type: object
+        properties:
+          id:
+            type: integer
+            example: 20
+    ProviderWithServices:
+      allOf:
+      - $ref: '#/components/schemas/Provider'
+      - required:
+        - services
+        type: object
+        properties:
+          services:
+            type: array
+            items:
+              $ref: '#/components/schemas/Service'
+    ServiceNoId:
       required:
+      - description
       - name
       type: object
       properties:
         name:
           type: string
-          example: ACME Corporation
-        homePage:
+          example: 3D Projector
+        description:
           type: string
-          format: url
-          example: https://www.acme-corp.com
-        phone:
-          type: string
-          example: 408-867-5309
+          example: Projector for your house
+    Service:
+      allOf:
+      - $ref: '#/components/schemas/ServiceNoId'
+      - required:
+        - id
+        type: object
+        properties:
+          id:
+            type: integer
+            example: 20
+    ServiceWithProvider:
+      allOf:
+      - $ref: '#/components/schemas/Service'
+      - required:
+        - provider
+        type: object
+        properties:
+          provider:
+            $ref: '#/components/schemas/Provider'
   responses:
     "201ItemCreated":
       description: Item got created successfully.
     "400BadRequest":
       description: Request is not correct.
     "404NotFound":
-      description: There is endpoint found.
+      description: There is no endpoint found.
+    "409ItemExists":
+      description: an existing item already exists.
     "500InternalServerError":
       description: Internal Server Error.
+  parameters:
+    id:
+      name: id
+      in: path
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: integer
