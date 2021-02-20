@@ -104,32 +104,6 @@ paths:
           description: There is no endpoint found.
         "500":
           description: Internal Server Error.
-  /serviceprovider/{id}:
-    get:
-      summary: gets a specific service by id with Provider
-      description: get by service id along with Provider
-      operationId: getServiceProviderByID
-      parameters:
-      - name: id
-        in: path
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: integer
-      responses:
-        "200":
-          description: Successfull response with Service and Provider info
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ServiceWithProvider'
-        "400":
-          description: Request is not correct.
-        "404":
-          description: There is no endpoint found.
-        "500":
-          description: Internal Server Error.
   /providerservice/{id}:
     get:
       summary: gets a specific provider by id with Services
@@ -149,7 +123,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProviderWithServices'
+                $ref: '#/components/schemas/ProviderServices'
         "400":
           description: Request is not correct.
         "404":
@@ -166,7 +140,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ProviderNoId'
+              $ref: '#/components/schemas/ProviderRequestDTO'
       responses:
         "200":
           description: Successfull response with Provider info
@@ -192,7 +166,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ServiceNoId'
+              $ref: '#/components/schemas/ServiceRequestDTO'
       responses:
         "200":
           description: Successfull response with Service info
@@ -210,7 +184,7 @@ paths:
           description: Internal Server Error.
 components:
   schemas:
-    ProviderNoId:
+    ProviderRequestDTO:
       required:
       - description
       - name
@@ -223,27 +197,22 @@ components:
           type: string
           example: Everything for your house
     Provider:
-      allOf:
-      - $ref: '#/components/schemas/ProviderNoId'
-      - required:
-        - id
-        type: object
-        properties:
-          id:
-            type: integer
-            example: 20
-    ProviderWithServices:
-      allOf:
-      - $ref: '#/components/schemas/Provider'
-      - required:
-        - services
-        type: object
-        properties:
-          services:
-            type: array
-            items:
-              $ref: '#/components/schemas/Service'
-    ServiceNoId:
+      required:
+      - description
+      - id
+      - name
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 20
+        name:
+          type: string
+          example: Loco Poco
+        description:
+          type: string
+          example: Everything for your house
+    ServiceRequestDTO:
       required:
       - description
       - name
@@ -256,24 +225,45 @@ components:
           type: string
           example: Projector for your house
     Service:
-      allOf:
-      - $ref: '#/components/schemas/ServiceNoId'
-      - required:
-        - id
-        type: object
-        properties:
-          id:
-            type: integer
-            example: 20
-    ServiceWithProvider:
-      allOf:
-      - $ref: '#/components/schemas/Service'
-      - required:
-        - provider
-        type: object
-        properties:
-          provider:
-            $ref: '#/components/schemas/Provider'
+      required:
+      - description
+      - id
+      - name
+      - provider
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 20
+        name:
+          type: string
+          example: 3D Projector
+        description:
+          type: string
+          example: Projector for your house
+        provider:
+          $ref: '#/components/schemas/Provider'
+    ProviderServices:
+      required:
+      - description
+      - id
+      - name
+      - services
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 20
+        name:
+          type: string
+          example: Loco Poco
+        description:
+          type: string
+          example: Everything for your house
+        services:
+          type: array
+          items:
+            $ref: '#/components/schemas/Service'
   responses:
     "201ItemCreated":
       description: Item got created successfully.
@@ -285,12 +275,3 @@ components:
       description: an existing item already exists.
     "500InternalServerError":
       description: Internal Server Error.
-  parameters:
-    id:
-      name: id
-      in: path
-      required: true
-      style: simple
-      explode: false
-      schema:
-        type: integer
